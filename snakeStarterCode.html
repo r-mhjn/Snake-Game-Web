@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      canvas {
+        border: 1px solid white;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas width="400" height="400" id="game"></canvas>
+    <script>
+      let dx, dy;
+      // let applex = 320,appley = 320;
+      let interval;
+      var canvas = document.getElementById("game");
+      var context = canvas.getContext("2d");
+      var grid = 16;
+      var count = 0;
+
+      var snake = {
+        x: 160,
+        y: 160,
+        cells: [{ x: 160, y: 160 }, { x: 144, y: 160 }]
+      };
+
+      var apple = {
+        x: 320,
+        y: 320
+      };
+
+      // draw apple
+      function drawApple() {
+        context.fillStyle = "red";
+        context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
+      }
+      drawApple();
+
+      // draw snake
+      function drawSnake() {
+        context.fillStyle = "green";
+        for (let i = 0; i < snake.cells.length; i++)
+          if (i == 0) {
+            context.fillStyle = "blue";
+            context.fillRect(
+              snake.cells[i].x,
+              snake.cells[i].y,
+              grid - 1,
+              grid - 1
+            );
+          } else {
+            context.fillStyle = "green";
+            context.fillRect(
+              snake.cells[i].x,
+              snake.cells[i].y,
+              grid - 1,
+              grid - 1
+            );
+          }
+      }
+      drawSnake(); // for initial snake
+
+      function generateRandomApple() {
+        apple.x = Math.floor(Math.random() * 360);
+        apple.y = apple.x;
+        console.log(apple.x, apple.y);
+        // drawApple();
+      }
+
+      function moveSnake(dx, dy) {
+        // ALways adding one at front and removing thr last while moving normallly
+        snake.x += dx;
+        snake.y += dy;
+        // console.log(snake.x, snake.y);
+        if (snake.x == apple.x && snake.y == apple.y) {
+          snake.cells.unshift({ x: snake.x, y: snake.y }); // Insert at 0th position
+          generateRandomApple();
+          drawSnake();
+        } else {
+          snake.cells.pop(); // remove the last element
+          snake.cells.unshift({ x: snake.x, y: snake.y }); // Insert at 0th position
+          console.log(snake.cells.length);
+          drawSnake();
+        }
+      }
+
+      function clear() {
+        clearInterval(interval);
+      }
+      function set() {
+        interval = setInterval(() => {
+          context.clearRect(0, 0, canvas.width, canvas.height); // Clear the Canvas
+          // console.log(dx,dy);
+          moveSnake(dx, dy);
+          drawApple();
+        }, 1000);
+      }
+
+      // listen to keyboard events to move the snake
+      document.addEventListener("keydown", function(e) {
+        // left arrow key
+        if (e.keyCode == 37) {
+          dx = -grid;
+          dy = 0;
+          console.log("left");
+          clear();
+        }
+        // up arrow key
+        else if (e.keyCode == 38) {
+          dy = -grid;
+          dx = 0;
+          console.log("up");
+          // clear();
+        }
+        // right arrow key
+        else if (e.keyCode == 39) {
+          dx = grid;
+          dy = 0;
+          console.log("right");
+          clear();
+        }
+        // down arrow key
+        else if (e.keyCode == 40) {
+          dy = grid;
+          dx = 0;
+          console.log("down");
+          clear();
+        }
+        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the Canvas
+        console.log(dx, dy);
+        set();
+        moveSnake(dx, dy);
+        drawApple();
+      });
+    </script>
+  </body>
+</html>
