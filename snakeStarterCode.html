@@ -93,9 +93,7 @@
         snake.x += dx;
         snake.y += dy;
         // console.log(snake.x, snake.y);
-        if (snake.x == 480 || snake.y == 480) {
-          alert("Game Over");
-        }
+        snakeTouchesWall();
         checkSnakeEatsBody();
         if (snake.x == apple.x && snake.y == apple.y) {
           snake.cells.unshift({ x: snake.x, y: snake.y }); // Insert at 0th position
@@ -110,10 +108,21 @@
         }
       }
 
+      function snakeTouchesWall() {
+
+        if (snake.x + grid == 480 || snake.y + grid == 480) {
+           clear();
+        }
+        if (snake.x == 480 || snake.y== 480) {
+          alert("Game Over");          
+        }
+      }
+
       function checkSnakeEatsBody() {
         for (let i = 0; i < snake.cells.length; i++) {
           if (snake.cells[i].x == snake.x && snake.cells[i].y == snake.y) {
             alert("game over");
+            clear();
           }
         }
       }
@@ -124,15 +133,16 @@
       }
 
       function clear() {
-        clearInterval(interval);
+        clearInterval(interval);        
       }
-      function set(speed) {
+
+      set = speed => {
         interval = setInterval(() => {
           context.clearRect(0, 0, canvas.width, canvas.height); // Clear the Canvas
           moveSnake(dx, dy);
           drawApple();
         }, speed);
-      }
+      };
 
       let flag = false;
       // listen to keyboard events to move the snake
