@@ -19,17 +19,20 @@
       }
     </style>
   </head>
-  <body onload="set(1000)">
-    <canvas width="400" height="400" id="game"></canvas>
+  <body onload="set(800)">
+    <p id="paraScore" style="color:'#fff'"></p>
+    <canvas width="480" height="480" id="game"></canvas>
     <script>
       // let applex = 320,appley = 320;
-      
+      let scoreContainer = document.getElementById("paraScore");
       var canvas = document.getElementById("game");
       var context = canvas.getContext("2d");
       var grid = 16;
       var count = 0;
-      let dx=grid, dy=0;
-      
+      let dx = grid,
+        dy = 0;
+      let score = 0;
+
       var snake = {
         x: 160,
         y: 160,
@@ -74,6 +77,11 @@
 
       function generateRandomApple() {
         apple.x = Math.floor(Math.random() * 360);
+        if (apple.x < 16) {
+          generateRandomApple();
+        }
+        let extra = apple.x % 16;
+        apple.x = apple.x - extra;
         apple.y = apple.x;
         console.log(apple.x, apple.y);
         // drawApple();
@@ -81,12 +89,18 @@
 
       function moveSnake(dx, dy) {
         // ALways adding one at front and removing thr last while moving normallly
+        console.log(snake.x, snake.y);
         snake.x += dx;
         snake.y += dy;
         // console.log(snake.x, snake.y);
+        if (snake.x == 480 || snake.y == 480) {
+          alert("Game Over");
+        }
+        checkSnakeEatsBody();
         if (snake.x == apple.x && snake.y == apple.y) {
           snake.cells.unshift({ x: snake.x, y: snake.y }); // Insert at 0th position
           generateRandomApple();
+          setScore();
           drawSnake();
         } else {
           snake.cells.pop(); // remove the last element
@@ -96,19 +110,31 @@
         }
       }
 
+      function checkSnakeEatsBody() {
+        for (let i = 0; i < snake.cells.length; i++) {
+          if (snake.cells[i].x == snake.x && snake.cells[i].y == snake.y) {
+            alert("game over");
+          }
+        }
+      }
+
+      function setScore() {
+        score++;
+        scoreContainer.innerHtml = `Score ${score}`;
+      }
+
       function clear() {
         clearInterval(interval);
       }
       function set(speed) {
         interval = setInterval(() => {
           context.clearRect(0, 0, canvas.width, canvas.height); // Clear the Canvas
-          console.log(dx,dy);
           moveSnake(dx, dy);
           drawApple();
         }, speed);
       }
 
-      let flag=false;
+      let flag = false;
       // listen to keyboard events to move the snake
       document.addEventListener("keydown", function(e) {
         // left arrow key
@@ -116,33 +142,28 @@
           dx = -grid;
           dy = 0;
           console.log("left");
-       
         }
         // up arrow key
         else if (e.keyCode == 38) {
           dy = -grid;
           dx = 0;
           console.log("up");
-          
         }
         // right arrow key
         else if (e.keyCode == 39) {
           dx = grid;
           dy = 0;
           console.log("right");
-          
         }
         // down arrow key
         else if (e.keyCode == 40) {
           dy = grid;
           dx = 0;
           console.log("down");
-          
         }
-        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the Canvas
-        console.log(dx, dy);       
-        moveSnake(dx, dy);
-        drawApple();
+        // context.clearRect(0, 0, canvas.width, canvas.height); // Clear the Canvas
+        // moveSnake(dx, dy);
+        // drawApple();
       });
     </script>
   </body>
