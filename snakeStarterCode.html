@@ -19,12 +19,26 @@
       }
     </style>
   </head>
-  <body onload="set(800)">
-    <p id="paraScore" style="color:'#fff'"></p>
-    <canvas width="480" height="480" id="game"></canvas>
+  <body onload="set(speed)" style="flex:1; flex-direction: column">
+    <div>
+      <span
+        id="spanScore"
+        style="color:#fff; margin-left: 0px; margin-right: 100px; font-size:30px;"
+        >Score 0</span
+      >
+      <span
+        id="spanLevelCount"
+        style="color:#fff; margin-left: 100px; margin-right: 0px; font-size:30px; "
+        >Level 1</span
+      >
+    </div>
+    <div>
+      <canvas width="480" height="480" id="game"></canvas>
+    </div>
     <script>
       // let applex = 320,appley = 320;
-      let scoreContainer = document.getElementById("paraScore");
+      let scoreContainer = document.getElementById("spanScore");
+      let levelContainer = document.getElementById("spanLevelCount");
       var canvas = document.getElementById("game");
       var context = canvas.getContext("2d");
       var grid = 16;
@@ -32,7 +46,11 @@
       let dx = grid,
         dy = 0;
       let score = 0;
+      let level = 1;
+      let speed = 300;
+      let levelParameter = 5;
 
+      //TODO: check to avoid apple over snake
       var snake = {
         x: 160,
         y: 160,
@@ -42,6 +60,18 @@
       var apple = {
         x: 320,
         y: 320
+      };
+
+      var wall = {
+        x: 80,
+        y: 80,
+        cells: [
+          { x: 80, y: 80 },
+          { x: 80, y: 64 },
+          { x: 80, y: 48 },
+          { x: 80, y: 32 },
+          { x: 80, y: 16 }
+        ]
       };
 
       // draw apple
@@ -82,9 +112,16 @@
         }
         let extra = apple.x % 16;
         apple.x = apple.x - extra;
+        for (let i = 0; i < snake.cells.length; i++) {
+          if (snake.cells[i].x == apple.x) {
+            generateRandomApple();
+            break;
+          }
+        }
+
         apple.y = apple.x;
         console.log(apple.x, apple.y);
-        // drawApple();
+        // drawApple();../components/courseComponents/Databases.js
       }
 
       function moveSnake(dx, dy) {
@@ -100,6 +137,9 @@
           generateRandomApple();
           setScore();
           drawSnake();
+         
+          if (level == 3) {
+          }
         } else {
           snake.cells.pop(); // remove the last element
           snake.cells.unshift({ x: snake.x, y: snake.y }); // Insert at 0th position
@@ -109,12 +149,15 @@
       }
 
       function snakeTouchesWall() {
-
-        if (snake.x + grid == 480 || snake.y + grid == 480) {
-           clear();
+        if (snake.x == 480) {
+          snake.x = 0;
+        } else if (snake.x == 0) {
+          snake.x = 480;
         }
-        if (snake.x == 480 || snake.y== 480) {
-          alert("Game Over");          
+        if (snake.y == 480) {
+          snake.y = 0;
+        } else if (snake.y == 0) {
+          snake.y = 480;
         }
       }
 
@@ -127,13 +170,47 @@
         }
       }
 
+      function incrementLevel() {
+        level++;
+        levelContainer.innerHTML = `Level ${level}`;
+        checkLevel();
+      }
+
+      drawWalls = () => {
+        for (let i = 0; i < wall.cells.length; i++) {
+          context.fillStyle = "green";
+          context.fillRect(
+            wall.cells[i].x,
+            wall.cells[i].y,
+            grid - 1,
+            grid - 1
+          );
+        }
+      };
+
+      function checkLevel() {
+        if (level == 2) {
+          set(150);
+        }
+        if (level == 3) {
+          // drawWalls();
+        }
+        if (level == 4) {
+          speed = 50;
+        }
+      }
+
       function setScore() {
         score++;
-        scoreContainer.innerHtml = `Score ${score}`;
+        if (score % levelParameter == 0) {
+          incrementLevel();
+        }
+        console.log(scoreContainer.innerHTML);
+        scoreContainer.innerHTML = `Score ${score}`;
       }
 
       function clear() {
-        clearInterval(interval);        
+        clearInterval(interval);
       }
 
       set = speed => {
@@ -141,6 +218,7 @@
           context.clearRect(0, 0, canvas.width, canvas.height); // Clear the Canvas
           moveSnake(dx, dy);
           drawApple();
+          console.log(speed);
         }, speed);
       };
 
